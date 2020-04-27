@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Attendace Log Reader</title>
+<style>
+    body {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        background: #f1f4f6;
+        color: #495057
+    }
+
+    .position-relative {
+        position: relative;
+    }
+
+    .mt-20 {
+        margin-top: 20px;
+    }
+    
+    .main-container {
+      width: 80%;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 0 auto;
+      min-height: 100%;
+      margin-bottom: -20px;
+      min-width: 480px;
+    }
+
+    .upload-container {
+        display: block;
+    }
+
+    .result-container {
+        margin-top: 25px;
+    }
+
+    .scrollable-table {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .read-file-btn--disabled {
+        background-color: #eee;
+        color: #9b8f8f;
+        cursor: auto;
+    }
+
+    .read-file-btn--disabled:hover {
+        background-color: #eee;
+    }
+
+    .upload-file-input {
+        display: none;
+    }
+
+    .display-none {
+        display: none !important;
+    }
+
+    .result-container__filters {
+        margin-top: 10px;
+    }
+
+    .file-information .file-information__item {
+        color: rgba(13,27,62,0.7);
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .file-information .file-information__item .item-text {
+        color: #000000;
+    }
+
+    .log-table {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .log-table td, .log-table th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .log-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .log-table tr:hover {
+        background-color: #ddd;
+    }
+
+    .log-table td td(:last) {
+        width: 70%;
+    }
+
+    .log-table th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #4CAF50;
+      color: white;
+    }
+    .text-center {
+        text-align: center !important; 
+    }
+
+    .footer {
+        height: 20px;
+        width: 80%;
+        margin: 0 auto;
+        padding: 10px 3px;
+    }
+
+    .copyright {
+        display: block;
+        margin-top: 10px;
+        float: right;
+
+    }
+
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(26,54,126,0.125);
+        border-radius: .25rem;
+        box-shadow: 0 0.46875rem 2.1875rem rgba(4,9,20,0.03),0 0.9375rem 1.40625rem rgba(4,9,20,0.03),0 0.25rem 0.53125rem rgba(4,9,20,0.05),0 0.125rem 0.1875rem rgba(4,9,20,0.03);
+        border-width: 0;
+        transition: all .2s;
+    }
+
+    .card-body {
+        flex: 1 1 auto;
+        padding: 1.25rem;
+    }
+
+    .card-header, .card-title {
+        text-transform: uppercase;
+        color: rgba(13,27,62,0.7);
+        font-weight: bold;
+        font-size: .88rem;
+        margin-top: 0;
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        color: #495057;
+        text-align: center;
+        vertical-align: middle;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid transparent;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: .25rem;
+        transition: color 0.15s,background-color 0.15s,border-color 0.15s,box-shadow 0.15s;
+        cursor: pointer;
+    }
+
+    .btn-green {
+        color: #fff;
+        background-color: #3ac47d;
+        border-color: #3ac47d;
+    }
+
+    .btn-green:hover {
+        background-color: #2e9d64;
+        border-color: #2b935e;
+    }
+
+    .btn-blue {
+        color: #fff;
+        background-color: #3f6ad8;
+        border-color: #3f6ad8;
+    }
+
+    .btn-blue:hover {
+        background-color: #2651be;
+        border-color: #244cb3;
+    }
+
+    .btn-dark {
+        color: #fff;
+        background-color: #343a40;
+        border-color: #343a40;
+    }
+
+    .btn-dark:hover {
+        background-color: #1d2124;
+        border-color: #171a1d;
+    }
+
+    .btn-sm, .btn-group-sm > .btn {
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+
+    .alert {
+        position: relative;
+        padding: .75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: .25rem;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+
+    .alert-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        height: calc(2.25rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color 0.15s ease-in-out,box-shadow 0.15s ease-in-out;
+    }
+    .form-control-sm {
+        height: calc(1.8125rem + 2px);
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+
+    .form-control-inline-sm {
+        max-width: 25%;
+        display: inline;
+        height: calc(1.3rem + 2px);
+    }
+
+    </style>
+</head>
+
+<body>
+<div class="main-container">
+    <div class="alert alert-info state-box">
+        <span class="state-box__message">
+            <strong>Hi Eden!</strong> Your app is ready to use.</a>
+        </span>
+    </div>
+    <div class="form-container card">
+        <div class="card-body">
+            <h5 class="card-title">Attendance Log Reader</h5>
+            <form>
+                <p class="form-note">* Choose the att-logs file you want to read by clicking "Read File" button.</p>
+                <input name="filename" id="upload-file" type="file" class="upload-file-input" onchange="app.readFile(this);">
+                <button type="button" id="read-file-btn" class="btn btn-green btn-sm read-file-btn" onclick="app.uploadFile();">Read File</button>
+            </form>
+        </div>
+    
+        
+    </div>
+    <div class="result-container display-none card">
+        <div class="card-body">
+            <p class="result-container__message"></p>
+            <div class="file-information">
+                <span class="file-information__item file-name">
+                    <strong>Filename:</strong> <span class="item-text file-name-value"></span>
+                </span>
+                <span class="file-information__item file-row-size">
+                    <strong>Rows Detected:</strong> <span class="item-text file-row-size-value"></span>
+                </span>
+                <div class="result-container__filters">
+                    <input name="log-number" class="form-control form-control-sm form-control-inline-sm filer__log-number" placeholder="Input employee number">
+                    <input type="date" class="form-control form-control-sm form-control-inline-sm filter__log-date-start">
+                    <input type="date" class="form-control form-control-sm form-control-inline-sm filter__log-date-end">
+                    <button class="btn btn-blue btn-sm filter__submit" onclick="app.processData()">Filter</button>
+                    <button class="btn btn-dark btn-sm filter__reset" onclick="app.resetFilter()">Reset</button>
+                </div>
+                <div class="result-container__table display-none mt-20">
+                    <table class="log-table">
+                        <thead>
+                            <th>Employee</th>
+                            <th width="70%">Log Date</th>
+                        </thead>
+                    </table>
+                    <div class="scrollable-table">
+                        <table class="log-table">
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer">
+    <p class="copyright">Copyright &copy 2020 Jozell Rili, All rights reserved. | For revisions or new feature, email me @ <a href="mailto:jrwebapps@gmail.com">jrwebapps@gmail.com</a></p>
+</footer>
+
+<script>
+    var app = {
+        data: [],
+        hasCheckCompatibility: false,
+        init: () => {
+            app.getCompatibilityCheckResult();
+        },
+        readFile: (input) => {
+            let file   = input.files[0];
+            let reader = new FileReader();
+
+            reader.readAsText(file);
+
+            reader.onload = function() {
+                let result = reader.result;
+
+                app.data = result.split(/\r\n|\r|\n/g);
+
+                document.querySelector('.result-container').classList.remove('display-none');
+                document.querySelector('.file-name-value').innerHTML = file.name;
+                document.querySelector('.file-row-size-value').innerHTML = app.data.length;
+            };
+
+            reader.onerror = function() {
+                console.log(reader.error);
+            };
+        },
+        compatibilityCheck: () => {
+            let canUseApp      = false;
+            let errorMessage   = 'The File APIs are not fully supported in this browser.';
+            let successMessage = 'Great! You are ready to use this app.';
+            let message        =  errorMessage;
+
+            localStorage.setItem('isAppCompatible', 0);
+
+            // check if the browser support reading file.
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                localStorage.setItem('isAppCompatible', 1);
+
+                message   = successMessage;
+                canUseApp = true;
+            } 
+
+            localStorage.setItem('isCompatibilityCheckDone', 1);
+            console.log(message);
+
+            return {
+                canUseApp: canUseApp,
+                message: message,
+            };
+        },
+        getCompatibilityCheckResult: () => {
+            let compatibilityCheck = localStorage.getItem('isCompatibilityCheckDone');
+            let isCompatible       = localStorage.getItem('isAppCompatible'); 
+            let result             = {};
+            let canUseApp          = isCompatible != null ? isCompatible : 0;
+
+            if (compatibilityCheck == null) {
+                localStorage.setItem('isCompatibilityCheckDone', 0);
+                result = app.compatibilityCheck();
+
+                alert(result.message);
+            }
+
+            if (canUseApp == 0) {
+                let $stateMessage = document.querySelector('.state-box__message');
+                let $readFileBtn  = document.querySelector('.read-file-btn');
+
+                $stateMessage.innerHTML = 'App is not compatible with this browser. Buttons are disabled. Please use modern and updated browser like Firefox or Chrome.';
+                $readFileBtn.classList.add('read-file-btn--disabled');
+            }    
+
+
+            return canUseApp;
+        },
+        uploadFile: () => {
+            console.log('reading file');
+            document.querySelector('#upload-file').click();
+        },
+        processData: () => {
+            let $filterLogNumber        = document.querySelector('.filer__log-number');
+            let $filterLogDateStart     = document.querySelector('.filter__log-date-start');
+            let $filterLogDateEnd       = document.querySelector('.filter__log-date-end');
+            let filterLogNumberValue    = $filterLogNumber.value;
+            let filterLogDateStartValue = $filterLogDateStart.value;
+            let filterLogDateEndValue   = $filterLogDateEnd.value;
+            let found                   = [];
+
+            if (filterLogNumberValue.trim() == '' && filterLogDateStartValue.trim() == '' && filterLogDateEndValue.trim() == '') {
+                alert('Error! Please input filters!');
+            } else {
+                if (app.isDateRangeValid(filterLogDateStartValue, filterLogDateEndValue) === false) {
+                    alert('Please select a valid date range!');
+                } else {
+                    let dateRange = app.getDateArray(filterLogDateStartValue, filterLogDateEndValue);
+
+                    if (app.data.length > 0) {
+                        for (var i = 0; i < dateRange.length; i++) {
+
+                            app.data.filter(item => {
+
+                                if ((item.indexOf(filterLogNumberValue) !== -1) && (item.indexOf(dateRange[i]) !== -1)) {
+                                    found.push(item);
+                                }
+                            });
+                            
+                        }
+                    }
+
+                    app.drawTable(found);
+                }
+            }
+
+        },
+        drawTable: data => {
+            var $table = document.querySelector('.log-table tbody');
+            $table.innerHTML = '';
+
+            console.log(typeof data);
+            console.log(data);
+
+            if (data.length > 0) {  
+                data.forEach(function(obj, ind) {
+                    let rowData  = obj.split(/\t/g);
+                    let tableRow = $table.insertRow(ind);
+
+                    tableRow.insertCell(0).innerHTML = rowData[0].trim();
+                    tableRow.insertCell(1).innerHTML = rowData[1].trim();
+                });
+            } else {
+                let tableRow = $table.insertRow(0);
+                let cell     = tableRow.insertCell(0);
+
+                cell.classList.add('text-center');
+                cell.colSpan   = 2;
+                cell.innerHTML = 'No results found!';
+            }
+
+            document.querySelector('.result-container__table').classList.remove('display-none');
+        },
+        resetFilter: () => {
+            document.querySelector('.result-container__table').classList.add('display-none');
+            document.querySelector('.filer__log-number').value = '';
+            document.querySelector('.filter__log-date-start').value  = '';
+            document.querySelector('.filter__log-date-end').value  = '';
+        },
+        getDateArray: (from, to) => {
+            let arr  = new Array();
+            let dt   = new Date(from);
+            let end  = new Date(to);
+
+            while (dt <= end) {
+                let date    = new Date(dt);
+                let day     = (date.getDate() < 10) ? '0' + date.getDate() : date.getDate();
+                let month   = (parseInt(date.getMonth() + 1) < 10) ? '0' + parseInt(date.getMonth() + 1) : date.getMonth();
+                let dateStr = date.getFullYear() + '-' + month + '-' + day;
+
+                console.log(dateStr);
+
+                arr.push(dateStr);
+                dt.setDate(dt.getDate() + 1);
+            }
+
+            return arr;
+        },
+        isDateRangeValid: (from, to) => {
+            let currentDate = new Date();
+            let isValid     = true;
+
+            from = new Date(from);
+            to   = new Date(to);
+
+            currentDate.setHours(0,0,0,0);
+            from.setHours(0,0,0,0);
+            to.setHours(0,0,0,0);
+
+            if (from > to) isValid = false;
+            if (from > currentDate) isValid = false;
+            if (to > currentDate) isValid = false;
+        }
+    };
+
+    (function() {
+        console.log('Application is initializing...');
+
+        app.init();
+    })();
+
+</script>
+
+</body>
+
+</html>
