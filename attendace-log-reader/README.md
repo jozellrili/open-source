@@ -14,3 +14,8 @@ Input the Employee Id number and the date range you want to filter then click th
 
 ### Reset Filters:
 Click the `Reset` button to clear the filters and the table will hide.
+
+### Change Log (WIP)
+* v1 - initial application with starting features
+* v2 - UI Changes
+* v2.01 - Fixed issue of no results when filtering logs for the month of oct - dec
