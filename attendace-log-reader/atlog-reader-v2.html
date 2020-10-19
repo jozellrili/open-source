@@ -53,9 +53,9 @@
     }
 
     .read-file-btn--disabled {
-        background-color: #eee;
-        color: #9b8f8f;
-        cursor: auto;
+        background-color: #eee !important;
+        color: #9b8f8f !important;
+        cursor: not-allowed !important;
     }
 
     .read-file-btn--disabled:hover {
@@ -233,6 +233,7 @@
         background-color: #d1ecf1;
         border-color: #bee5eb;
     }
+
     .form-group {
         margin-bottom: 1rem;
     }
@@ -400,8 +401,9 @@
                 let $stateMessage = document.querySelector('.state-box__message');
                 let $readFileBtn  = document.querySelector('.read-file-btn');
 
-                $stateMessage.innerHTML = 'App is not compatible with this browser. Buttons are disabled. Please use modern and updated browser like Firefox or Chrome.';
+                $stateMessage.innerHTML = '<strong>Warning: App is not compatible with this browser</strong>. Buttons are disabled. Please use modern and updated browser like Firefox or Chrome. Or you can reload the page to see magic!';
                 $readFileBtn.classList.add('read-file-btn--disabled');
+                $readFileBtn.setAttribute('disabled', true);
             }    
 
 
@@ -450,9 +452,6 @@
             var $table = document.querySelector('.log-table tbody');
             $table.innerHTML = '';
 
-            console.log(typeof data);
-            console.log(data);
-
             if (data.length > 0) {  
                 data.forEach(function(obj, ind) {
                     let rowData  = obj.split(/\t/g);
@@ -486,10 +485,10 @@
             while (dt <= end) {
                 let date    = new Date(dt);
                 let day     = (date.getDate() < 10) ? '0' + date.getDate() : date.getDate();
-                let month   = (parseInt(date.getMonth() + 1) < 10) ? '0' + parseInt(date.getMonth() + 1) : date.getMonth();
+                let month   = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1;
                 let dateStr = date.getFullYear() + '-' + month + '-' + day;
 
-                console.log(dateStr);
+                console.log('date value: ', dateStr);
 
                 arr.push(dateStr);
                 dt.setDate(dt.getDate() + 1);
